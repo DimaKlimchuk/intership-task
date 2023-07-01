@@ -8,10 +8,20 @@ import './App.css';
 
 const URL = 'https://myfakeapi.com/api/cars/';
 
+const getDataFromLS = () => {
+  const data = localStorage.getItem('cars');
+  if (data) {
+    return JSON.parse(data);
+  } else {
+    return [];
+  }
+};
+
 function App() {
   const backdrop = document.getElementById('backdrop');
   const addCarForm = document.getElementById('add-car-element');
   const [data, setData] = useState(null);
+  const [upData, setUpData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState('');
   const [addFormData, setAddFormData] = useState({
@@ -26,13 +36,36 @@ function App() {
   });
 
   React.useEffect(() => {
-    axios.get(URL).then((response) => {
-      setData(response.data);
-    });
+    const storedData = JSON.parse(localStorage.getItem('cars'));
+    if (storedData) {
+      setData(storedData);
+    } else {
+      fetchData();
+    }
   }, []);
 
+  const fetchData = () => {
+    axios.get(URL).then((response) => {
+      setData(response.data.cars);
+      localStorage.setItem('cars', JSON.stringify(response.data.cars));
+    });
+  };
+
   if (!data) return null;
-  const cars = [...data.cars];
+
+  getDataFromLS();
+  const cars = [...data].filter((item) => {
+    return search.toLowerCase() === ''
+      ? item
+      : item.car_model.toLowerCase().includes(search);
+  });
+  const addNewElement = (newData) => {
+    // Оновлюємо стан компонента, додаючи новий елемент до існуючих даних
+    setData([...data, newData]);
+    // Зберігаємо оновлені дані у Local Storage
+    const updatedData = [...data, newData];
+    localStorage.setItem('cars', JSON.stringify(updatedData));
+  };
 
   const EditHandler = () => {
     console.log('edit');
@@ -53,6 +86,8 @@ function App() {
   };
 
   const addCarHandler = () => {
+    const addCarForm = document.getElementById('add-car-element');
+    console.log(addCarForm);
     addCarForm.style.display = 'block';
     backdrop.style.display = 'block';
     backdrop.addEventListener('click', () => cancelHandler());
@@ -64,12 +99,17 @@ function App() {
     const fieldValue = e.target.value;
 
     const newFormData = { ...addFormData };
-    newFormData['id'] = cars.length + 1;
+    newFormData['id'] = data.length + 1;
     if (fieldName === 'availability') {
     }
     newFormData[fieldName] = fieldValue;
     setAddFormData(newFormData);
     console.log(fieldName);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+    setCurrentPage(1); // Скидаємо поточну сторінку до першої при зміні пошуку
   };
 
   const addCarSubmit = (e) => {
@@ -85,21 +125,14 @@ function App() {
       price: `$${addFormData.price}`,
       availability: false,
     };
-    const newCars = [...cars, newCar];
-    cars.push(newCar);
+    addNewElement(newCar);
     console.log(cars);
   };
 
   const recordsPerPage = 50;
   const lastIndex = currentPage * recordsPerPage;
   const firstIndex = lastIndex - recordsPerPage;
-  const records = cars
-    .filter((item) => {
-      return search.toLowerCase() === ''
-        ? item
-        : item.car_model.toLowerCase().includes(search);
-    })
-    .slice(firstIndex, lastIndex);
+  const records = cars.slice(firstIndex, lastIndex);
   const npage = Math.ceil(cars.length / recordsPerPage);
   const numbers = [...Array(npage + 1).keys()].slice(1);
 
@@ -125,7 +158,7 @@ function App() {
           <input
             type="text"
             placeholder="Search model"
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={handleSearchChange}
           />
         </div>
         <button type="button" onClick={addCarHandler}>
