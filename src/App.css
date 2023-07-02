@@ -103,3 +103,56 @@ td {
   height: 100vh;
   background: rgba(0, 0, 0, 0.5);
 }
+
+.edit-car-element {
+  display: none;
+  z-index: 25;
+  /* Додайте стилі для форми редагування */
+}
+
+#backdrop {
+  display: none;
+  /* Додайте стилі для підкреслення */
+}
+
+.menu {
+  position: absolute;
+  background-color: white;
+  border: 1px solid gray;
+  border-radius: 5%;
+  padding: 8px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.menu ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu li {
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.menu li:hover {
+  background-color: lightgray;
+}
+
+.delete-container {
+}
+
+.delete-confirmation {
+  position: absolute;
+  background-color: white;
+  border: 1px solid gray;
+  border-radius: 5%;
+  padding: 8px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Стилізація вибраних radio елементів */
+input[type='radio']:checked {
+  background-color: #ff0000;
+  border-color: #ff0000;
+}
