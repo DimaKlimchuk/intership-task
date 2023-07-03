@@ -2,12 +2,15 @@ import React from 'react';
 
 const SearchBar = ({ handleSearchChange }) => {
   return (
-    <div className="search">
-      <input
-        type="text"
-        placeholder="Search model"
-        onChange={handleSearchChange}
-      />
+    <div class="wrap">
+      <div className="search">
+        <input
+          type="text"
+          class="searchTerm"
+          placeholder="Search model"
+          onChange={handleSearchChange}
+        />
+      </div>
     </div>
   );
 };

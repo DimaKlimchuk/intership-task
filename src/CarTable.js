@@ -1,7 +1,14 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faChevronDown } from '@fortawesome/free-solid-svg-icons';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import {
+  faCheck,
+  faChevronDown,
+  faXmark,
+  faTrash,
+  faPen,
+  faChevronUp,
+} from '@fortawesome/free-solid-svg-icons';
+
 import EditForm from './EditForm';
 
 function CarTable({
@@ -18,9 +25,10 @@ function CarTable({
   editFormData,
   handleEditFormChange,
   cancelEdit,
+  isEditing,
 }) {
   return (
-    <table>
+    <table class="styled-table">
       <thead>
         <th>Company</th>
         <th>Model</th>
@@ -48,12 +56,16 @@ function CarTable({
               )}
             </td>
             <td>
-              <button type="button" onClick={() => handleMenuToggle(item.id)}>
+              <button
+                type="button"
+                className="button-action"
+                onClick={() => handleMenuToggle(item.id)}
+              >
                 <span className="dropdown">
                   Choose an Action
                   <FontAwesomeIcon
                     icon={faChevronDown}
-                    style={{ color: 'blue', marginLeft: '0.2rem' }}
+                    style={{ color: 'blue', marginLeft: '0.4rem' }}
                   />
                 </span>
               </button>
@@ -61,8 +73,27 @@ function CarTable({
                 <div>
                   <div className="menu">
                     <ul>
-                      <li onClick={() => handleEdit(item.id)}>Edit</li>
-                      <li onClick={() => handleDelete(item.id)}>Delete</li>
+                      <li
+                        className="action-btn"
+                        onClick={() => handleEdit(item.id)}
+                      >
+                        <FontAwesomeIcon
+                          icon={faPen}
+                          style={{ color: '#009879', marginRight: '0.3rem' }}
+                        />
+                        Edit
+                      </li>
+                      <li
+                        className="action-btn"
+                        onClick={() => handleDelete(item.id)}
+                      >
+                        {' '}
+                        <FontAwesomeIcon
+                          icon={faTrash}
+                          style={{ color: 'red', marginRight: '0.3rem' }}
+                        />
+                        Delete
+                      </li>
                     </ul>
                   </div>
                   {item.id === itemToEdit && (
@@ -76,10 +107,16 @@ function CarTable({
                   <div className="delete-container">
                     {showDeleteConfirmation && (
                       <div className="delete-confirmation">
-                        <h3>Підтвердіть видалення</h3>
-                        <p>Ви впевнені, що хочете видалити цей елемент?</p>
-                        <button onClick={confirmDelete}>Так</button>
-                        <button onClick={cancelDelete}>Ні</button>
+                        <h3>Confirm the deletion</h3>
+                        <p>Are you sure you want to delete this item?</p>
+                        <div class="add-car-btn">
+                          <button className="btn-add" onClick={confirmDelete}>
+                            Yes
+                          </button>
+                          <button className="btn-cancel" onClick={cancelDelete}>
+                            No
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>

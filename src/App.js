@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { useId } from 'react';
+import { v4 as uuid } from 'uuid';
 import CarTable from './CarTable';
 import Pagination from './Pagination';
 import SearchBar from './SearchBar';
@@ -27,7 +27,8 @@ function capitalizeFirstLetter(string) {
 function App() {
   const backdrop = document.getElementById('backdrop');
   const addCarForm = document.getElementById('add-car-element');
-  const uniqueId = useId();
+
+  const uniqueId = uuid();
   const [data, setData] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState('');
@@ -45,6 +46,7 @@ function App() {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [itemToEdit, setItemToEdit] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
   const [editFormData, setEditFormData] = useState({
     id: 0,
     car: '',
@@ -191,13 +193,21 @@ function App() {
   const handleMenuToggle = (itemId) => {
     setShowMenu((prevState) => ({
       ...prevState,
-      [itemId]: !prevState[itemId], // Змінюємо стан меню для конкретного елемента
+      [itemId]: !prevState[itemId],
     }));
+  };
+
+  const cancelDelete = () => {
+    setShowMenu(false);
+    setShowDeleteConfirmation(false);
+    backdrop.style.display = 'none';
   };
 
   const handleDelete = (itemId) => {
     setShowDeleteConfirmation(true);
     setItemToDelete(itemId);
+    backdrop.style.display = 'block';
+    backdrop.addEventListener('click', () => cancelDelete(itemId));
   };
 
   const confirmDelete = () => {
@@ -205,16 +215,33 @@ function App() {
     setShowDeleteConfirmation(false);
     const updatedData = data.filter((item) => item.id !== itemToDelete);
     localStorage.setItem('cars', JSON.stringify(updatedData));
+    backdrop.style.display = 'none';
   };
 
-  const cancelDelete = () => {
-    setShowDeleteConfirmation(false);
+  const cancelEdit = () => {
+    setShowMenu(false);
+    backdrop.style.display = 'none';
+    setItemToEdit(null);
+    setEditFormData({
+      id: 0,
+      car: '',
+      car_model: '',
+      car_vin: '',
+      car_color: '',
+      car_model_year: '',
+      price: '',
+      availability: false,
+    });
   };
 
   const handleEdit = (itemId) => {
+    setIsEditing(true);
     setItemToEdit(itemId);
     const item = data.find((item) => item.id === itemId);
     setEditFormData(item);
+    console.log(isEditing);
+    backdrop.style.display = 'block';
+    backdrop.addEventListener('click', () => cancelEdit());
   };
 
   const handleEditFormChange = (e) => {
@@ -233,6 +260,8 @@ function App() {
   };
 
   const handleSave = (e) => {
+    setShowMenu(false);
+    backdrop.style.display = 'none';
     e.preventDefault();
     const updatedData = data.map((item) => {
       if (item.id === editFormData.id) {
@@ -255,26 +284,12 @@ function App() {
     });
   };
 
-  const cancelEdit = () => {
-    setItemToEdit(null);
-    setEditFormData({
-      id: 0,
-      car: '',
-      car_model: '',
-      car_vin: '',
-      car_color: '',
-      car_model_year: '',
-      price: '',
-      availability: false,
-    });
-  };
-
   return (
     <div className="App">
       <div className="backdrop" id="backdrop"></div>
       <div className="header">
         <SearchBar handleSearchChange={handleSearchChange} />
-        <button type="button" onClick={addCarHandler}>
+        <button type="button" className="button" onClick={addCarHandler}>
           Add Car
         </button>
         <AddCarForm
@@ -298,6 +313,7 @@ function App() {
         editFormData={editFormData}
         handleEditFormChange={handleEditFormChange}
         cancelEdit={cancelEdit}
+        isEditing={isEditing}
       />
       <Pagination
         numbers={numbers}
