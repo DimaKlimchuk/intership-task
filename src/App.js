@@ -2,9 +2,11 @@ import axios from 'axios';
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { useId } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faChevronDown } from '@fortawesome/free-solid-svg-icons';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import CarTable from './CarTable';
+import Pagination from './Pagination';
+import SearchBar from './SearchBar';
+import AddCarForm from './AddCarForm';
+
 import './App.css';
 
 const URL = 'https://myfakeapi.com/api/cars/';
@@ -76,7 +78,7 @@ function App() {
   const cars = [...data].filter((item) => {
     return search.toLowerCase() === ''
       ? item
-      : item.car_model.toLowerCase().includes(search);
+      : item.car_model.toLowerCase().includes(search.toLowerCase());
   });
   const addNewElement = (newData) => {
     setData([...data, newData]);
@@ -271,247 +273,39 @@ function App() {
     <div className="App">
       <div className="backdrop" id="backdrop"></div>
       <div className="header">
-        <div className="search">
-          <input
-            type="text"
-            placeholder="Search model"
-            onChange={handleSearchChange}
-          />
-        </div>
+        <SearchBar handleSearchChange={handleSearchChange} />
         <button type="button" onClick={addCarHandler}>
           Add Car
         </button>
-        <form
-          className="add-car-element"
-          id="add-car-element"
-          onSubmit={addCarSubmit}
-        >
-          <input
-            type="text"
-            name="car"
-            placeholder="Company"
-            value={addFormData.car}
-            onChange={inputChangeHandler}
-            required
-          />
-          <input
-            type="text"
-            name="car_model"
-            placeholder="Model"
-            value={addFormData.car_model}
-            onChange={inputChangeHandler}
-            required
-          />
-          <input
-            type="text"
-            name="car_vin"
-            placeholder="VIN"
-            value={addFormData.car_vin}
-            onChange={inputChangeHandler}
-            required
-          />
-          <input
-            type="text"
-            name="car_color"
-            placeholder="Color"
-            value={addFormData.car_color}
-            onChange={inputChangeHandler}
-            required
-          />
-          <input
-            type="text"
-            name="car_model_year"
-            placeholder="Year"
-            value={addFormData.car_model_year}
-            onChange={inputChangeHandler}
-            required
-          />
-          <input
-            type="text"
-            name="price"
-            placeholder="Price"
-            value={addFormData.price}
-            onChange={inputChangeHandler}
-            required
-          />
-          <span className="radio-input">
-            <input
-              type="radio"
-              name="availability"
-              value="True"
-              onChange={inputChangeHandler}
-              required
-            />
-            Yes
-            <input
-              type="radio"
-              name="availability"
-              value="False"
-              onChange={inputChangeHandler}
-              required
-            />
-            No
-          </span>
-
-          <button type="submit">Add</button>
-          <button type="button" onClick={cancelHandler}>
-            Cancel
-          </button>
-        </form>
+        <AddCarForm
+          addCarSubmit={addCarSubmit}
+          addFormData={addFormData}
+          inputChangeHandler={inputChangeHandler}
+          cancelHandler={cancelHandler}
+        />
       </div>
-      <table>
-        <thead>
-          <th>Company</th>
-          <th>Model</th>
-          <th>VIN</th>
-          <th>Color</th>
-          <th>Year</th>
-          <th>Price</th>
-          <th>Availability</th>
-          <th>Actions</th>
-        </thead>
-        <tbody>
-          {records.map((item) => (
-            <tr key={item.id}>
-              <td>{item.car}</td>
-              <td>{item.car_model}</td>
-              <td>{item.car_vin}</td>
-              <td>{item.car_color}</td>
-              <td>{item.car_model_year}</td>
-              <td>{item.price}</td>
-              <td className="availability">
-                {item.availability ? (
-                  <FontAwesomeIcon icon={faCheck} style={{ color: 'green' }} />
-                ) : (
-                  <FontAwesomeIcon icon={faXmark} style={{ color: 'red' }} />
-                )}
-              </td>
-              <td>
-                <button type="button" onClick={() => handleMenuToggle(item.id)}>
-                  <span className="dropdown">
-                    Choose an Action
-                    <FontAwesomeIcon
-                      icon={faChevronDown}
-                      style={{ color: 'blue', marginLeft: '0.2rem' }}
-                    />
-                  </span>
-                </button>
-                {showMenu[item.id] && (
-                  <div>
-                    <div className="menu">
-                      <ul>
-                        <li onClick={() => handleEdit(item.id)}>Edit</li>
-                        <li onClick={() => handleDelete(item.id)}>Delete</li>
-                      </ul>
-                    </div>
-                    {item.id === itemToEdit && (
-                      <form onSubmit={handleSave}>
-                        <input
-                          type="text"
-                          name="car"
-                          disabled={true}
-                          value={editFormData.car}
-                          onChange={handleEditFormChange}
-                        />
-                        <input
-                          type="text"
-                          name="car_model"
-                          disabled={true}
-                          value={editFormData.car_model}
-                          onChange={handleEditFormChange}
-                        />
-                        <input
-                          type="text"
-                          name="car_vin"
-                          disabled={true}
-                          value={editFormData.car_vin}
-                          onChange={handleEditFormChange}
-                        />
-                        <input
-                          type="text"
-                          name="car_color"
-                          value={editFormData.car_color}
-                          onChange={handleEditFormChange}
-                        />
-                        <input
-                          type="text"
-                          name="car_model_year"
-                          disabled={true}
-                          value={editFormData.car_model_year}
-                          onChange={handleEditFormChange}
-                        />
-                        <input
-                          type="text"
-                          name="price"
-                          value={editFormData.price}
-                          onChange={handleEditFormChange}
-                        />
-                        <input
-                          type="radio"
-                          name="availability"
-                          value="True"
-                          checked={editFormData.availability}
-                          onChange={handleEditFormChange}
-                        />
-                        <input
-                          type="radio"
-                          name="availability"
-                          value=""
-                          checked={!editFormData.availability}
-                          onChange={handleEditFormChange}
-                        />
-                        {/* ... */}
-                        <button type="submit">Save</button>
-                        <button type="button" onClick={cancelEdit}>
-                          Cancel
-                        </button>
-                      </form>
-                    )}
-                    <div className="delete-container">
-                      {showDeleteConfirmation && (
-                        <div className="delete-confirmation">
-                          <h3>Підтвердіть видалення</h3>
-                          <p>Ви впевнені, що хочете видалити цей елемент?</p>
-                          <button onClick={confirmDelete}>Так</button>
-                          <button onClick={cancelDelete}>Ні</button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <nav>
-        <ul className="pages">
-          <li className="page-item">
-            <a href="#" className="page-link" onClick={prePage}>
-              Prev
-            </a>
-          </li>
-          {numbers.map((number, index) => (
-            <li
-              className={`page-item ${currentPage === number ? 'active' : ''}`}
-              key={index}
-            >
-              <a
-                href="#"
-                className="page-link"
-                onClick={() => changeCurrentPage(number)}
-              >
-                {number}
-              </a>
-            </li>
-          ))}
-          <li className="page-item">
-            <a href="#" className="page-link" onClick={nextPage}>
-              Next
-            </a>
-          </li>
-        </ul>
-      </nav>
+      <CarTable
+        records={records}
+        showMenu={showMenu}
+        handleDelete={handleDelete}
+        handleMenuToggle={handleMenuToggle}
+        handleEdit={handleEdit}
+        itemToEdit={itemToEdit}
+        showDeleteConfirmation={showDeleteConfirmation}
+        confirmDelete={confirmDelete}
+        cancelDelete={cancelDelete}
+        handleSave={handleSave}
+        editFormData={editFormData}
+        handleEditFormChange={handleEditFormChange}
+        cancelEdit={cancelEdit}
+      />
+      <Pagination
+        numbers={numbers}
+        currentPage={currentPage}
+        prePage={prePage}
+        changeCurrentPage={changeCurrentPage}
+        nextPage={nextPage}
+      />
     </div>
   );
 }
