@@ -6,11 +6,9 @@ import CarTable from './CarTable';
 import Pagination from './Pagination';
 import SearchBar from './SearchBar';
 import AddCarForm from './AddCarForm';
-
 import './App.css';
 
-const URL = 'https://myfakeapi.com/api/cars/';
-
+// function for get data from Local Storage
 const getDataFromLS = () => {
   const data = localStorage.getItem('cars');
   if (data) {
@@ -20,14 +18,16 @@ const getDataFromLS = () => {
   }
 };
 
+// function make first letter to upper case
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 function App() {
+  // start creating variables
+  const URL = 'https://myfakeapi.com/api/cars/';
   const backdrop = document.getElementById('backdrop');
   const addCarForm = document.getElementById('add-car-element');
-
   const uniqueId = uuid();
   const [data, setData] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -57,6 +57,9 @@ function App() {
     price: '',
     availability: false,
   });
+  // end creating variables
+
+  //fetching data from public rest api
 
   useEffect(() => {
     const storedData = JSON.parse(localStorage.getItem('cars'));
@@ -75,19 +78,23 @@ function App() {
   };
 
   if (!data) return null;
+  // end fetching data
 
-  getDataFromLS();
+  // filtering data by model of cars
   const cars = [...data].filter((item) => {
     return search.toLowerCase() === ''
       ? item
       : item.car_model.toLowerCase().includes(search.toLowerCase());
   });
+
+  // adding new car to data
   const addNewElement = (newData) => {
     setData([...data, newData]);
     const updatedData = [...data, newData];
     localStorage.setItem('cars', JSON.stringify(updatedData));
   };
 
+  //handler for click event -> reset and close add form
   const cancelHandler = () => {
     const backdrop = document.getElementById('backdrop');
     const addCarForm = document.getElementById('add-car-element');
@@ -110,6 +117,7 @@ function App() {
     backdrop.style.display = 'none';
   };
 
+  //handler for click event -> open form for adding car
   const addCarHandler = () => {
     const addCarForm = document.getElementById('add-car-element');
     const backdrop = document.getElementById('backdrop');
@@ -119,6 +127,7 @@ function App() {
     backdrop.addEventListener('click', () => cancelHandler());
   };
 
+  //handler for change event -> get data from input fields
   const inputChangeHandler = (e) => {
     e.preventDefault();
     const fieldName = e.target.getAttribute('name');
@@ -135,11 +144,7 @@ function App() {
     setAddFormData(newFormData);
   };
 
-  const handleSearchChange = (e) => {
-    setSearch(e.target.value);
-    setCurrentPage(1);
-  };
-
+  //handler for click event -> send add form and add new element to data
   const addCarSubmit = (e) => {
     e.preventDefault();
 
@@ -169,6 +174,13 @@ function App() {
     backdrop.style.display = 'none';
   };
 
+  //handler for change event -> get date from search field
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+    setCurrentPage(1);
+  };
+
+  //pagination
   const recordsPerPage = 50;
   const lastIndex = currentPage * recordsPerPage;
   const firstIndex = lastIndex - recordsPerPage;
@@ -189,7 +201,9 @@ function App() {
       setCurrentPage(currentPage + 1);
     }
   };
+  // end pagination
 
+  //handler for click event -> open and close actions menu
   const handleMenuToggle = (itemId) => {
     setShowMenu((prevState) => ({
       ...prevState,
@@ -197,12 +211,14 @@ function App() {
     }));
   };
 
+  //handler for click event -> cancel delete element
   const cancelDelete = () => {
     setShowMenu(false);
     setShowDeleteConfirmation(false);
     backdrop.style.display = 'none';
   };
 
+  //handler for click event -> open confirmation of deletion of the item
   const handleDelete = (itemId) => {
     setShowDeleteConfirmation(true);
     setItemToDelete(itemId);
@@ -210,6 +226,7 @@ function App() {
     backdrop.addEventListener('click', () => cancelDelete(itemId));
   };
 
+  //handler for click event -> confirm deletion of the item
   const confirmDelete = () => {
     setData((prevData) => prevData.filter((item) => item.id !== itemToDelete));
     setShowDeleteConfirmation(false);
@@ -218,6 +235,7 @@ function App() {
     backdrop.style.display = 'none';
   };
 
+  //handler for click event -> cancel edit element
   const cancelEdit = () => {
     setShowMenu(false);
     backdrop.style.display = 'none';
@@ -234,6 +252,7 @@ function App() {
     });
   };
 
+  //handler for click event -> open form for editing element
   const handleEdit = (itemId) => {
     setIsEditing(true);
     setItemToEdit(itemId);
@@ -244,6 +263,7 @@ function App() {
     backdrop.addEventListener('click', () => cancelEdit());
   };
 
+  //handler for change event -> get changings from inputs
   const handleEditFormChange = (e) => {
     if (e.target.name === 'availability') {
       console.log({ [e.target.name]: Boolean(e.target.value) });
@@ -259,6 +279,7 @@ function App() {
     }));
   };
 
+  //handler for click event -> save and close edit form
   const handleSave = (e) => {
     setShowMenu(false);
     backdrop.style.display = 'none';
